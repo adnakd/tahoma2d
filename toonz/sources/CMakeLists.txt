@@ -20,18 +20,18 @@ set(BUILD_TARGET_WIN       OFF)
 set(BUILD_TARGET_APPLE     OFF)
 set(BUILD_TARGET_UNIX      OFF)
 if(WIN32)
-    set(BUILD_TARGET_WIN    ON)
-    message(STATUS "Target system is WIN")
+  set(BUILD_TARGET_WIN    ON)
+  message(STATUS "Target system is WIN")
 elseif(APPLE)
-    set(BUILD_TARGET_APPLE  ON)
-    message(STATUS "Target system is APPLE")
+  set(BUILD_TARGET_APPLE  ON)
+  message(STATUS "Target system is APPLE")
 elseif(UNIX)
-    set(BUILD_TARGET_UNIX   ON)
-    message(STATUS "Target system is UNIX")
+  set(BUILD_TARGET_UNIX   ON)
+  message(STATUS "Target system is UNIX")
 else()
-    set(BUILD_TARGET_UNIX   ON)
-    message(WARNING "Target system unknown, set UNIX by default")
-    message(STATUS "Target system is UNIX (actually unknown)")
+  set(BUILD_TARGET_UNIX   ON)
+  message(WARNING "Target system unknown, set UNIX by default")
+  message(STATUS "Target system is UNIX (actually unknown)")
 endif()
 
 #-----------------------------------------------------------------------------
@@ -41,44 +41,44 @@ set(BUILD_ENV_MSVC     OFF)
 set(BUILD_ENV_APPLE    OFF)
 set(BUILD_ENV_UNIXLIKE OFF)
 if(MSVC)
-    set(BUILD_ENV_MSVC ON)
-    if(NOT BUILD_TARGET_WIN)
-        message(WARNING "Build environment is MSVC, but target system is not WIN")
-    endif()
-    message(STATUS "Build environment is MSVC")
+  set(BUILD_ENV_MSVC ON)
+  if(NOT BUILD_TARGET_WIN)
+    message(WARNING "Build environment is MSVC, but target system is not WIN")
+  endif()
+  message(STATUS "Build environment is MSVC")
 elseif(CMAKE_HOST_APPLE)
-    set(BUILD_ENV_APPLE ON)
-    if(NOT BUILD_TARGET_APPLE)
-        message(WARNING "Build environment is APPLE, but target system is not APPLE")
-    endif()
-    message(STATUS "Build environment is APPLE")
+  set(BUILD_ENV_APPLE ON)
+  if(NOT BUILD_TARGET_APPLE)
+    message(WARNING "Build environment is APPLE, but target system is not APPLE")
+  endif()
+  message(STATUS "Build environment is APPLE")
 elseif(CMAKE_HOST_UNIX OR CMAKE_COMPILER_IS_GNUCC)
-    set(BUILD_ENV_UNIXLIKE ON)
-    if(NOT BUILD_TARGET_UNIX AND NOT BUILD_TARGET_WIN)
-        message(WARNING "Build environment is UNIXLIKE, but target system is not UNIX or WIN")
-    endif()
-    message(STATUS "Build environment is UNIXLIKE")
+  set(BUILD_ENV_UNIXLIKE ON)
+  if(NOT BUILD_TARGET_UNIX AND NOT BUILD_TARGET_WIN)
+    message(WARNING "Build environment is UNIXLIKE, but target system is not UNIX or WIN")
+  endif()
+  message(STATUS "Build environment is UNIXLIKE")
 else()
-    message(ERROR "Unsupported build environment, only MSVC, APPLE and UNIXLIKE are supported")
+  message(ERROR "Unsupported build environment, only MSVC, APPLE and UNIXLIKE are supported")
 endif()
 
 
 # initialize to ON
 macro(option_defaults_init)
-    foreach(_var ${ARGV})
-        set(${_var} ON)
-        list(APPEND _init_vars "${_var}")
-    endforeach()
-    unset(_var)
+  foreach(_var ${ARGV})
+    set(${_var} ON)
+    list(APPEND _init_vars "${_var}")
+  endforeach()
+  unset(_var)
 endmacro()
 
 # remove from namespace
 macro(option_defaults_clear)
-    foreach(_var ${_init_vars})
-        unset(${_var})
-    endforeach()
-    unset(_var)
-    unset(_init_vars)
+  foreach(_var ${_init_vars})
+    unset(${_var})
+  endforeach()
+  unset(_var)
+  unset(_init_vars)
 endmacro()
 
 # values to initialize WITH_****
@@ -88,14 +88,14 @@ option_defaults_init(
 
 # customize...
 if(BUILD_ENV_MSVC)
-    set(_init_SYSTEM_LZO                     OFF)
-    set(_init_SYSTEM_SUPERLU                 OFF)
+  set(_init_SYSTEM_LZO                     OFF)
+  set(_init_SYSTEM_SUPERLU                 OFF)
 elseif(BUILD_ENV_APPLE)
-    set(_init_SYSTEM_LZO                     OFF)
-    set(_init_SYSTEM_SUPERLU                 OFF)
+  set(_init_SYSTEM_LZO                     OFF)
+  set(_init_SYSTEM_SUPERLU                 OFF)
 elseif(BUILD_ENV_UNIXLIKE)
-    set(_init_SYSTEM_LZO                     ON)
-    set(_init_SYSTEM_SUPERLU                 ON)
+  set(_init_SYSTEM_LZO                     ON)
+  set(_init_SYSTEM_SUPERLU                 ON)
 endif()
 
 
@@ -105,7 +105,7 @@ endif()
 option(WITH_SYSTEM_LZO "Use the system LZO library instead of 'thirdparty'" ${_init_SYSTEM_LZO})
 option(WITH_SYSTEM_SUPERLU "Use the system SuperLU library instead of 'thirdparty'" ${_init_SYSTEM_SUPERLU})
 option(WITH_CANON "Build with Canon DSLR support - Requires Canon SDK" OFF)
-option(WITH_GPHOTO2 "Build with Libgphoto2" OFF)
+option(WITH_GPHOTO2 "Build with Libgphoto2" ON)
 option(WITH_TRANSLATION "Generate translation projects as well" ON)
 option(WITH_WINTAB "(Windows only) Build with customized Qt with WinTab support. https://github.com/shun-iwasawa/qt5/releases/tag/v5.15.2_wintab" OFF)
 
@@ -124,115 +124,116 @@ get_filename_component(SDKROOT ../../thirdparty/ ABSOLUTE)
 message(STATUS "SDK Root:" ${SDKROOT})
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../cmake")
 if(BUILD_ENV_APPLE)
-    set(THIRDPARTY_LIBS_HINTS "/usr/local/Cellar/" "/opt/include" ${SDKROOT})
+  set(THIRDPARTY_LIBS_HINTS "/usr/local/Cellar/" "/opt/include" ${SDKROOT})
 elseif(BUILD_ENV_MSVC OR BUILD_ENV_UNIXLIKE)
-    set(THIRDPARTY_LIBS_HINTS ${SDKROOT})
+  set(THIRDPARTY_LIBS_HINTS ${SDKROOT})
 endif()
 
 if(BUILD_ENV_MSVC)
-    # configure the third party libs (only once) to avoid manual copies
-    message(STATUS "configure the third party libs")
-    if(NOT EXISTS"${SDKROOT}/libpng-1.6.21")
-        file(COPY "${SDKROOT}/libpng-1.6.21/scripts/pnglibconf.h.prebuilt" DESTINATION "${SDKROOT}/libpng-1.6.21")
-        file(RENAME "${SDKROOT}/libpng-1.6.21/pnglibconf.h.prebuilt" "${SDKROOT}/libpng-1.6.21/pnglibconf.h")
-    endif()
-    if(NOT EXISTS "${SDKROOT}/tiff-4.2.0/libtiff/tif_config.h")
-        file(COPY_FILE "${SDKROOT}/tiff-4.2.0/libtiff/tif_config.vc.h" "${SDKROOT}/tiff-4.2.0/libtiff/tif_config.h")
-    endif()
-    if(NOT EXISTS "${SDKROOT}/tiff-4.2.0/libtiff/tiffconf.h")
-        file(COPY_FILE "${SDKROOT}/tiff-4.2.0/libtiff/tiffconf.vc.h" "${SDKROOT}/tiff-4.2.0/libtiff/tiffconf.h")
-    endif()
+  # configure the third party libs (only once) to avoid manual copies
+  message(STATUS "configure the third party libs")
+  if(NOT EXISTS"${SDKROOT}/libpng-1.6.21")
+    file(COPY "${SDKROOT}/libpng-1.6.21/scripts/pnglibconf.h.prebuilt" DESTINATION "${SDKROOT}/libpng-1.6.21")
+    file(RENAME "${SDKROOT}/libpng-1.6.21/pnglibconf.h.prebuilt" "${SDKROOT}/libpng-1.6.21/pnglibconf.h")
+  endif()
+  if(NOT EXISTS "${SDKROOT}/tiff-4.2.0/libtiff/tif_config.h")
+    file(COPY_FILE "${SDKROOT}/tiff-4.2.0/libtiff/tif_config.vc.h" "${SDKROOT}/tiff-4.2.0/libtiff/tif_config.h")
+  endif()
+  if(NOT EXISTS "${SDKROOT}/tiff-4.2.0/libtiff/tiffconf.h")
+    file(COPY_FILE "${SDKROOT}/tiff-4.2.0/libtiff/tiffconf.vc.h" "${SDKROOT}/tiff-4.2.0/libtiff/tiffconf.h")
+  endif()
 endif()
 
 message(STATUS "Thirdparty Library Search path:" ${THIRDPARTY_LIBS_HINTS})
 
 if(BUILD_ENV_MSVC)
-    set(QT_PATH "C:/Qt/5.15.2/msvc2019${PLATFORM2}" CACHE PATH "Qt installation directory")
-    if(NOT EXISTS ${QT_PATH})
-        message("Specify QT_PATH properly")
-        return()
-    endif()
-    set(QT_LIB_PATH ${QT_PATH})
-    set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${QT_PATH}/lib/cmake/")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /std:c++17 /wd4251")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /wd4251")
-    add_definitions(
+  set(QT_PATH "C:/Qt/5.15.2/msvc2019${PLATFORM2}" CACHE PATH "Qt installation directory")
+  if(NOT EXISTS ${QT_PATH})
+    message("Specify QT_PATH properly")
+    return()
+  endif()
+  set(QT_LIB_PATH ${QT_PATH})
+  set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${QT_PATH}/lib/cmake/")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /std:c++17 /wd4251")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /wd4251")
+  add_definitions(
         -DVC_EXTRALEAN
         -DNOMINMAX
         -D_USE_MATH_DEFINES
     )
-    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
+  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
 elseif(BUILD_ENV_APPLE)
-    if(NOT PLATFORM)
-        set(PLATFORM 64)
-    endif()
-    message("PLATFORM:" ${PLATFORM})
-    if(PLATFORM EQUAL 64)
-        set(QT_PATH "~/Qt5.9.2/5.9.2/clang_${PLATFORM}/lib" CACHE PATH "Qt installation directory")
-        set(QT_LIB_PATH "${QT_PATH}/")
-        set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${QT_LIB_PATH}cmake/")
-        foreach(path ${CMAKE_PREFIX_PATH})
-          message("CMAKE_PREFIX_PATH: " ${path})
-        endforeach(path)
-        add_definitions(
+  if(NOT PLATFORM)
+    set(PLATFORM 64)
+  endif()
+  message("PLATFORM:" ${PLATFORM})
+  if(PLATFORM EQUAL 64)
+    set(QT_PATH "~/Qt5.9.2/5.9.2/clang_${PLATFORM}/lib" CACHE PATH "Qt installation directory")
+    set(QT_LIB_PATH "${QT_PATH}/")
+    set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${QT_LIB_PATH}cmake/")
+    foreach(path ${CMAKE_PREFIX_PATH})
+      message("CMAKE_PREFIX_PATH: " ${path})
+    endforeach(path)
+    add_definitions(
             -DMACOSX
             -Di386
             -D__MACOS__
         )
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -std=c++17 -stdlib=libc++ -fno-implicit-templates")
-        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m64 -std=c++17 -stdlib=libc++ -fno-implicit-templates")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
-    elseif(PLATFORM EQUAL 32)
-        set(QT_PATH "~/Qt5.9.2/5.9.2/clang_32/lib" CACHE PATH "Qt installation directory")
-        set(QT_LIB_PATH "${QT_PATH}/")
-        set(CMAKE_PREFIX_PATH "${QT_LIB_PATH}cmake/")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -std=c++17 -stdlib=libc++ -fno-implicit-templates")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m64 -std=c++17 -stdlib=libc++ -fno-implicit-templates")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
+  elseif(PLATFORM EQUAL 32)
+    set(QT_PATH "~/Qt5.9.2/5.9.2/clang_32/lib" CACHE PATH "Qt installation directory")
+    set(QT_LIB_PATH "${QT_PATH}/")
+    set(CMAKE_PREFIX_PATH "${QT_LIB_PATH}cmake/")
 
-        message("CMAKE_PREFIX_PATH:" ${CMAKE_PREFIX_PATH})
-        add_definitions(
+    message("CMAKE_PREFIX_PATH:" ${CMAKE_PREFIX_PATH})
+    add_definitions(
             -DMACOSX
             -Di386
             -D__MACOS__
         )
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -std=c++17 -stdlib=libc++ -fno-implicit-templates -D HAS_QUICKDRAW")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
-        set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -m32")
-    else()
-        message(FATAL_ERROR "Invalid PLATFORM:" ${PLATFORM} ". 'PLATFORM' must be 32 or 64.")
-    endif()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -std=c++17 -stdlib=libc++ -fno-implicit-templates -D HAS_QUICKDRAW")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
+    set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -m32")
+  else()
+    message(FATAL_ERROR "Invalid PLATFORM:" ${PLATFORM} ". 'PLATFORM' must be 32 or 64.")
+  endif()
 elseif(BUILD_ENV_UNIXLIKE)
-    # Needed for correct Qt detection
-    cmake_minimum_required(VERSION 2.8.12)
-    set(PRELOAD_VARIABLE "LD_LIBRARY_PATH")
-    if(CMAKE_SIZEOF_VOID_P MATCHES "8")
-        set(PLATFORM 64)
-    else()
-        set(PLATFORM 32)
-    endif()
-    if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-        add_definitions(
+  # Needed for correct Qt detection
+  cmake_minimum_required(VERSION 2.8.12)
+  set(PRELOAD_VARIABLE "LD_LIBRARY_PATH")
+  if(CMAKE_SIZEOF_VOID_P MATCHES "8")
+    set(PLATFORM 64)
+  else()
+    set(PLATFORM 32)
+  endif()
+  if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    add_definitions(
             -DLINUX
             -DTARGET_OS_LINUX
         )
-    elseif(CMAKE_SYSTEM_NAME MATCHES "Haiku")
-        add_definitions(-DHAIKU)
-        set(PRELOAD_VARIABLE "LIBRARY_PATH")
-    elseif(CMAKE_SYSTEM_NAME MATCHES "^.*BSD$|DragonFly")
-        set(BUILD_TARGET_BSD ON)
-        add_definitions(-D_BSD_SOURCE -DFREEBSD)
-        include_directories("/usr/local/include/")
-        message(STATUS "Configuring for BSD system")
-    elseif(NOT BUILD_TARGET_WIN)
-        message(WARNING "Support for generic Unix (Not Apple or Linux) isn't yet working!")
-    endif()
+  elseif(CMAKE_SYSTEM_NAME MATCHES "Haiku")
+    add_definitions(-DHAIKU)
+    set(PRELOAD_VARIABLE "LIBRARY_PATH")
+  elseif(CMAKE_SYSTEM_NAME MATCHES "^.*BSD$|DragonFly")
+    set(BUILD_TARGET_BSD ON)
+    add_definitions(-D_BSD_SOURCE -DFREEBSD)
+    include_directories("/usr/local/include/")
+    message(STATUS "Configuring for BSD system")
+  elseif(NOT BUILD_TARGET_WIN)
+    message(WARNING "Support for generic Unix (Not Apple or Linux) isn't yet working!")
+  endif()
 
-    set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_C_STANDARD 17)
 
-    find_package(Qt5Widgets)
+  find_package(Qt5Widgets)
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-    if (NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++")
-    endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+  if (NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++")
+  endif()
 endif()
 
 add_definitions(
@@ -247,16 +248,16 @@ add_definitions(
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if(BUILD_ENV_APPLE)
-    set(CMAKE_MACOSX_RPATH ON)
-    set(CMAKE_SKIP_BUILD_RPATH FALSE)
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-    set(CMAKE_INSTALL_RPATH ${QT_LIB_PATH})
-    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-    set(CMAKE_FIND_FRAMEWORK LAST)
-    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${QT_LIB_PATH}" isSystemDir)
-    if("${isSystemDir}" STREQUAL "-1")
-        set(CMAKE_INSTALL_RPATH "${QT_LIB_PATH}")
-    endif()
+  set(CMAKE_MACOSX_RPATH ON)
+  set(CMAKE_SKIP_BUILD_RPATH FALSE)
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+  set(CMAKE_INSTALL_RPATH ${QT_LIB_PATH})
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+  set(CMAKE_FIND_FRAMEWORK LAST)
+  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${QT_LIB_PATH}" isSystemDir)
+  if("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "${QT_LIB_PATH}")
+  endif()
 endif()
 
 include_directories(
@@ -283,7 +284,7 @@ find_package(Qt5 REQUIRED
 
 set(QT_MINIMUM_VERSION 5.5.0)
 if(Qt5Core_VERSION VERSION_LESS QT_MINIMUM_VERSION)
-    MESSAGE(FATAL_ERROR "Minimum supported Qt version: ${QT_MINIMUM_VERSION}.
+  MESSAGE(FATAL_ERROR "Minimum supported Qt version: ${QT_MINIMUM_VERSION}.
     Installed version: ${Qt5Core_VERSION}")
 endif()
 unset(QT_MINIMUM_VERSION)
@@ -291,32 +292,32 @@ unset(QT_MINIMUM_VERSION)
 
 
 if(BUILD_ENV_MSVC)
-    include_directories(
+  include_directories(
         SYSTEM
         ${SDKROOT}/freeglut/include
         ${SDKROOT}/zlib-1.2.8
         #${SDKROOT}/LibJPEG/jpeg-9
         ${SDKROOT}/libjpeg-turbo/include
     )
-    add_definitions(
+  add_definitions(
         -DGLUT_NO_LIB_PRAGMA
     )
 
-    if(WITH_GPHOTO2)
-        include_directories(
+  if(WITH_GPHOTO2)
+    include_directories(
             ${SDKROOT}/libgphoto2/include
         )
-    endif()
+  endif()
 endif()
 
 if(BUILD_ENV_MSVC)
-    find_package(OpenCV 4.1 REQUIRED
+  find_package(OpenCV 4.1 REQUIRED
         PATHS "C:/OpenCV/opencv/build" "C:/opencv/build" "C:/Tools/opencv/build"
     )
 elseif(BUILD_ENV_UNIXLIKE)
-    find_package(OpenCV REQUIRED)
+  find_package(OpenCV REQUIRED)
 else()
-    find_package(OpenCV 4.1 REQUIRED)
+  find_package(OpenCV 4.1 REQUIRED)
 endif()
 
 include_directories(
@@ -325,7 +326,7 @@ include_directories(
 )
 
 if(WITH_CANON)
-    include_directories(
+  include_directories(
         ${SDKROOT}/canon/Header
     )
 endif()
@@ -335,18 +336,18 @@ get_target_property(QtWidget_location Qt5::Widgets LOCATION)
 message(STATUS "Qt Core Location:" ${QtCore_location})
 
 macro(_find_toonz_library OUT_LIB_LIST IN_LIB_LIST)
-    set(OUTLIST "")
-    foreach(arg ${IN_LIB_LIST})
-        unset(COREPATH CACHE)
-        # find しても cmake が走るときにはできていないので完全なパス名を生成して返すだけ
-        if(BUILD_ENV_APPLE)
-            set(LIBPATH "\$<TARGET_FILE:${arg}>")
-        else()
-            set(LIBPATH ${arg})
-        endif()
-        set(OUTLIST ${OUTLIST} ${LIBPATH})
-    endforeach()
-    set(${OUT_LIB_LIST} ${OUTLIST})
+  set(OUTLIST "")
+  foreach(arg ${IN_LIB_LIST})
+    unset(COREPATH CACHE)
+    # find しても cmake が走るときにはできていないので完全なパス名を生成して返すだけ
+    if(BUILD_ENV_APPLE)
+      set(LIBPATH "\$<TARGET_FILE:${arg}>")
+    else()
+      set(LIBPATH ${arg})
+    endif()
+    set(OUTLIST ${OUTLIST} ${LIBPATH})
+  endforeach()
+  set(${OUT_LIB_LIST} ${OUTLIST})
 endmacro()
 
 set(TNZSTDFX_Location)
@@ -355,223 +356,223 @@ set(TFARM_Location)
 set(QT_LIB)  # avoid warning
 
 if(BUILD_ENV_MSVC)
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        set(PLATFORM 32)
-        set(PLATFORM2)
-    else()
-        set(PLATFORM 64)
-        set(PLATFORM2 _64)
-    endif()
+  if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    set(PLATFORM 32)
+    set(PLATFORM2)
+  else()
+    set(PLATFORM 64)
+    set(PLATFORM2 _64)
+  endif()
 
-#--- MSVC_VERSIONs ---
-#1800      = VS 12.0 (v120 toolset) - 2013
-#1900      = VS 14.0 (v140 toolset) - 2015
-#1910-1919 = VS 15.0 (v141 toolset) - 2017
-#1920-1929 = VS 16.0 (v142 toolset) - 2019
-#1930-1939 = VS 17.0 (v143 toolset) - 2022
-#
-    if(MSVC_VERSION GREATER 1919)
-        set(MSVC_LIB_VERSION 2019)
-    elseif(MSVC_VERSION GREATER 1800)
-        set(MSVC_LIB_VERSION 2015)
-    else()
-        set(MSVC_LIB_VERSION 2013)
-    endif()
+  #--- MSVC_VERSIONs ---
+  #1800      = VS 12.0 (v120 toolset) - 2013
+  #1900      = VS 14.0 (v140 toolset) - 2015
+  #1910-1919 = VS 15.0 (v141 toolset) - 2017
+  #1920-1929 = VS 16.0 (v142 toolset) - 2019
+  #1930-1939 = VS 17.0 (v143 toolset) - 2022
+  #
+  if(MSVC_VERSION GREATER 1919)
+    set(MSVC_LIB_VERSION 2019)
+  elseif(MSVC_VERSION GREATER 1800)
+    set(MSVC_LIB_VERSION 2015)
+  else()
+    set(MSVC_LIB_VERSION 2013)
+  endif()
 
-    set(GLUT_LIB ${SDKROOT}/freeglut/lib/x64/freeglut.lib)
-    set(GL_LIB opengl32.lib)
-    set(Z_LIB
+  set(GLUT_LIB ${SDKROOT}/freeglut/lib/x64/freeglut.lib)
+  set(GL_LIB opengl32.lib)
+  set(Z_LIB
         optimized ${SDKROOT}/zlib-1.2.8/lib/zlib-1.2.8_${MSVC_LIB_VERSION}${PLATFORM2}.lib
         debug ${SDKROOT}/zlib-1.2.8/lib/zlib-1.2.8_${MSVC_LIB_VERSION}${PLATFORM2}d.lib
     )
-    #set(JPEG_LIB ${SDKROOT}/LibJPEG/jpeg-9/lib/LibJPEG-9_${MSVC_LIB_VERSION}${PLATFORM2}.lib)
-    set(JPEG_LIB ${SDKROOT}/libjpeg-turbo/lib/jpeg-static_${MSVC_LIB_VERSION}${PLATFORM2}.lib)
-    set(TURBOJPEG_LIB ${SDKROOT}/libjpeg-turbo/lib/turbojpeg-static_${MSVC_LIB_VERSION}${PLATFORM2}.lib)
-    set(TIFF_INCLUDE_DIR ${SDKROOT}/tiff-4.2.0/libtiff)
-    set(TIFF_LIB
+  #set(JPEG_LIB ${SDKROOT}/LibJPEG/jpeg-9/lib/LibJPEG-9_${MSVC_LIB_VERSION}${PLATFORM2}.lib)
+  set(JPEG_LIB ${SDKROOT}/libjpeg-turbo/lib/jpeg-static_${MSVC_LIB_VERSION}${PLATFORM2}.lib)
+  set(TURBOJPEG_LIB ${SDKROOT}/libjpeg-turbo/lib/turbojpeg-static_${MSVC_LIB_VERSION}${PLATFORM2}.lib)
+  set(TIFF_INCLUDE_DIR ${SDKROOT}/tiff-4.2.0/libtiff)
+  set(TIFF_LIB
         optimized ${SDKROOT}/tiff-4.2.0/lib/Libtiff-4.2.0_${MSVC_LIB_VERSION}${PLATFORM2}.lib
         debug  ${SDKROOT}/tiff-4.2.0/lib/Libtiff-4.2.0_${MSVC_LIB_VERSION}${PLATFORM2}d.lib
     )
-    set(PNG_LIB
+  set(PNG_LIB
         optimized ${SDKROOT}/libpng-1.6.21/lib/libpng16_${MSVC_LIB_VERSION}${PLATFORM2}.lib
         debug  ${SDKROOT}/libpng-1.6.21/lib/libpng16_${MSVC_LIB_VERSION}${PLATFORM2}d.lib
     )
-    set(GLEW_LIB ${SDKROOT}/glew/glew-1.9.0/lib/glew${PLATFORM}.lib)
-    set(LZ4_LIB ${SDKROOT}/Lz4/Lz4_131/lz4_${PLATFORM}.lib)
-    set(SUPERLU_LIB ${SDKROOT}/superlu/SuperLU_${MSVC_LIB_VERSION}_${PLATFORM}.lib)
-    set(OPENBLAS_LIB ${SDKROOT}/openblas/libopenblas_${PLATFORM}.lib)
-    set(USB_LIB)  # unused
-    if (WITH_CANON)
-        set(CANON_LIB ${SDKROOT}/canon/library/EDSDK.lib)
-    endif()
-    set(MYPAINT_LIB_INCLUDE_DIRS ${SDKROOT}/libmypaint/dist/${PLATFORM}/include/libmypaint)
-    set(MYPAINT_LIB_LDFLAGS ${SDKROOT}/libmypaint/dist/${PLATFORM}/libmypaint.lib)
+  set(GLEW_LIB ${SDKROOT}/glew/glew-1.9.0/lib/glew${PLATFORM}.lib)
+  set(LZ4_LIB ${SDKROOT}/Lz4/Lz4_131/lz4_${PLATFORM}.lib)
+  set(SUPERLU_LIB ${SDKROOT}/superlu/SuperLU_${MSVC_LIB_VERSION}_${PLATFORM}.lib)
+  set(OPENBLAS_LIB ${SDKROOT}/openblas/libopenblas_${PLATFORM}.lib)
+  set(USB_LIB)  # unused
+  if (WITH_CANON)
+    set(CANON_LIB ${SDKROOT}/canon/library/EDSDK.lib)
+  endif()
+  set(MYPAINT_LIB_INCLUDE_DIRS ${SDKROOT}/libmypaint/dist/${PLATFORM}/include/libmypaint)
+  set(MYPAINT_LIB_LDFLAGS ${SDKROOT}/libmypaint/dist/${PLATFORM}/libmypaint.lib)
 
-    if(WITH_GPHOTO2)
-        set(GPHOTO2_LIB ${SDKROOT}/libgphoto2/lib/libgphoto2.lib)
-        set(GPHOTO2_PORT_LIB ${SDKROOT}/libgphoto2/lib/libgphoto2_port.lib)
-        set(GPHOTO2_COMPAT_LIB ${SDKROOT}/libgphoto2/lib/compat.lib)
-    endif()
+  if(WITH_GPHOTO2)
+    set(GPHOTO2_LIB ${SDKROOT}/libgphoto2/lib/libgphoto2.lib)
+    set(GPHOTO2_PORT_LIB ${SDKROOT}/libgphoto2/lib/libgphoto2_port.lib)
+    set(GPHOTO2_COMPAT_LIB ${SDKROOT}/libgphoto2/lib/compat.lib)
+  endif()
 elseif(BUILD_ENV_APPLE)
-    find_library(GLUT_LIB GLUT)
-    find_library(GL_LIB OpenGL)
-    find_library(Z_LIB z)
+  find_library(GLUT_LIB GLUT)
+  find_library(GL_LIB OpenGL)
+  find_library(Z_LIB z)
 
-    find_package(TIFF REQUIRED)
-    set(TIFF_LIB ${TIFF_LIBRARY})
-    # the libraries have not .pc nor preferred Find*.cmake. use custom modules.
-    find_package(PNG REQUIRED)
-    message("******* libpng:" ${PNG_LIBRARY})
-    set(PNG_LIB ${PNG_LIBRARY})
-    find_package(GLEW)
+  find_package(TIFF REQUIRED)
+  set(TIFF_LIB ${TIFF_LIBRARY})
+  # the libraries have not .pc nor preferred Find*.cmake. use custom modules.
+  find_package(PNG REQUIRED)
+  message("******* libpng:" ${PNG_LIBRARY})
+  set(PNG_LIB ${PNG_LIBRARY})
+  find_package(GLEW)
 
-    find_package(SuperLU REQUIRED)
-    set(SUPERLU_INCLUDE_DIR ${SUPERLU_INCLUDE_DIR}/superlu)
-    set(SUPERLU_LIB ${SUPERLU_LIBRARY})
-    message("SuperLU:" ${SUPERLU_INCLUDE_DIR})
+  find_package(SuperLU REQUIRED)
+  set(SUPERLU_INCLUDE_DIR ${SUPERLU_INCLUDE_DIR}/superlu)
+  set(SUPERLU_LIB ${SUPERLU_LIBRARY})
+  message("SuperLU:" ${SUPERLU_INCLUDE_DIR})
 
-    find_package(JPEG REQUIRED)
+  find_package(JPEG REQUIRED)
 
-    # the libraries have .pc
-    find_package(PkgConfig)
-    if(GLEW-NOTFOUND)
-        pkg_check_modules(GLEW REQUIRED glew)
-    endif()
-    if (TARGET GLEW::GLEW)
-      set(GLEW_LIB GLEW::GLEW)
-    else()
-      set(GLEW_LIB ${GLEW_LIBRARIES})
-    endif()
-
-    pkg_check_modules(LZ4_LIB REQUIRED liblz4)
-
-    message("**************** lz4 lib:" ${LZ4_LIB_INCLUDE_DIRS})
-    find_path(LZ4_STATIC lz4frame_static.h PATH ${LZ4_LIB_INCLUDE_DIRS})
-    if(LZ4_STATIC-FOUND)
-        add_definitions(-DLZ4_STATIC)
-    endif()
-
-    set(OPENBLAS_LIB) # unused?
-
-    set(JPEG_LIB ${JPEG_LIBRARY})
-    set(LZ4_LIB ${LZ4_LIB_LDFLAGS})
-
-    find_package(LZO REQUIRED)
-    message("LZO:" ${LZO_INCLUDE_DIR})
-
-    pkg_check_modules(MYPAINT_LIB REQUIRED libmypaint)
-
-    pkg_check_modules(TURBOJPEG REQUIRED libturbojpeg)
-    find_library(TURBOJPEG_LIB turbojpeg ${TURBOJPEG_LIBRARY_DIRS})
-    message("**************** turbojpeg lib:" ${TURBOJPEG_LIB})
-
-    if (WITH_CANON)
-        if(BUILD_ENV_APPLE)
-            set(CANON_LIB ${SDKROOT}/canon/Framework/EDSDK.framework)
-            message("**************** canon lib:" ${CANON_LIB})
-        endif()
-    endif()
-
-    if(WITH_GPHOTO2)
-        find_library(GPHOTO2_LIB gphoto2)
-        message("**************** gphoto2 lib:" ${GPHOTO2_LIB})
-        find_library(GPHOTO2_PORT_LIB gphoto2_port)
-        message("**************** gphoto2_port lib:" ${GPHOTO2_PORT_LIB})
-    endif()
-
-    find_library(DEFLATE_LIB deflate)
-elseif(BUILD_ENV_UNIXLIKE)
-    if(BUILD_TARGET_WIN)
-        find_library(GL_LIB opengl32)
-        find_library(GLU_LIB glu32)
-        find_library(GLUT_LIB NAMES glut freeglut)
-    else()
-        find_library(GL_LIB GL)
-        find_library(GLU_LIB GLU)
-        find_library(GLUT_LIB glut)
-    endif()
-    find_library(Z_LIB z)
-
-    if(NOT BUILD_TARGET_BSD)
-        find_package(TIFF REQUIRED)
-    endif()
-    find_package(PNG REQUIRED)
-    set(PNG_LIB ${PNG_LIBRARY})
-    message("******* libpng:" ${PNG_LIB})
-    find_package(GLEW)
-
-    find_package(SuperLU REQUIRED)
-    set(SUPERLU_LIB ${SUPERLU_LIBRARY})
-
-    find_package(JPEG REQUIRED)
-
-    # the libraries have .pc
-    find_package(PkgConfig)
-
-    # This is not required for Tahoma2D itself, but libtiff will pick it up if
-    # present and libimage won't be aware causing linker to fail
-    pkg_check_modules(LZMA liblzma)
-    set(TIFF_LIB ${TIFF_LIBRARY} ${LZMA_LIBRARIES})
-
-    if(GLEW-NOTFOUND)
-        pkg_check_modules(GLEW REQUIRED glew)
-    endif()
+  # the libraries have .pc
+  find_package(PkgConfig)
+  if(GLEW-NOTFOUND)
+    pkg_check_modules(GLEW REQUIRED glew)
+  endif()
+  if (TARGET GLEW::GLEW)
+    set(GLEW_LIB GLEW::GLEW)
+  else()
     set(GLEW_LIB ${GLEW_LIBRARIES})
+  endif()
 
-    pkg_check_modules(LZ4_LIB REQUIRED liblz4)
+  pkg_check_modules(LZ4_LIB REQUIRED liblz4)
 
-    message("**************** lz4 lib:" ${LZ4_LIB_INCLUDE_DIRS})
-    find_path(LZ4_STATIC lz4frame_static.h PATH ${LZ4_LIB_INCLUDE_DIRS})
-    if(LZ4_STATIC-FOUND)
-        add_definitions(-DLZ4_STATIC)
+  message("**************** lz4 lib:" ${LZ4_LIB_INCLUDE_DIRS})
+  find_path(LZ4_STATIC lz4frame_static.h PATH ${LZ4_LIB_INCLUDE_DIRS})
+  if(LZ4_STATIC-FOUND)
+    add_definitions(-DLZ4_STATIC)
+  endif()
+
+  set(OPENBLAS_LIB) # unused?
+
+  set(JPEG_LIB ${JPEG_LIBRARY})
+  set(LZ4_LIB ${LZ4_LIB_LDFLAGS})
+
+  find_package(LZO REQUIRED)
+  message("LZO:" ${LZO_INCLUDE_DIR})
+
+  pkg_check_modules(MYPAINT_LIB REQUIRED libmypaint)
+
+  pkg_check_modules(TURBOJPEG REQUIRED libturbojpeg)
+  find_library(TURBOJPEG_LIB turbojpeg ${TURBOJPEG_LIBRARY_DIRS})
+  message("**************** turbojpeg lib:" ${TURBOJPEG_LIB})
+
+  if (WITH_CANON)
+    if(BUILD_ENV_APPLE)
+      set(CANON_LIB ${SDKROOT}/canon/Framework/EDSDK.framework)
+      message("**************** canon lib:" ${CANON_LIB})
     endif()
+  endif()
 
-    # TODO: check for them properly in some sane order with pkg-config
-    find_library(OPENBLAS_LIB NAMES cblas gslcblas openblas blas)
-    message("OpenBLAS:" ${OPENBLAS_LIB})
+  if(WITH_GPHOTO2)
+    find_library(GPHOTO2_LIB gphoto2)
+    message("**************** gphoto2 lib:" ${GPHOTO2_LIB})
+    find_library(GPHOTO2_PORT_LIB gphoto2_port)
+    message("**************** gphoto2_port lib:" ${GPHOTO2_PORT_LIB})
+  endif()
 
-    set(JPEG_LIB ${JPEG_LIBRARY})
-    set(LZ4_LIB ${LZ4_LIB_LDFLAGS})
+  find_library(DEFLATE_LIB deflate)
+elseif(BUILD_ENV_UNIXLIKE)
+  if(BUILD_TARGET_WIN)
+    find_library(GL_LIB opengl32)
+    find_library(GLU_LIB glu32)
+    find_library(GLUT_LIB NAMES glut freeglut)
+  else()
+    find_library(GL_LIB GL)
+    find_library(GLU_LIB GLU)
+    find_library(GLUT_LIB glut)
+  endif()
+  find_library(Z_LIB z)
 
-    find_package(LZO REQUIRED)
-    message("LZO:" ${LZO_INCLUDE_DIR})
+  if(NOT BUILD_TARGET_BSD)
+    find_package(TIFF REQUIRED)
+  endif()
+  find_package(PNG REQUIRED)
+  set(PNG_LIB ${PNG_LIBRARY})
+  message("******* libpng:" ${PNG_LIB})
+  find_package(GLEW)
 
-    if(BUILD_TARGET_BSD OR HAIKU)
-        find_library(EXECINFO_LIBRARY execinfo)
-    endif()
-    find_library(PTHREAD_LIBRARY pthread)
+  find_package(SuperLU REQUIRED)
+  set(SUPERLU_LIB ${SUPERLU_LIBRARY})
 
-    if(NOT BUILD_TARGET_WIN)
-        pkg_check_modules(FREETYPE REQUIRED freetype2)
-    endif()
-    # Can be 'libmypaint' or 'libmypaint-1.x'
-    pkg_search_module(MYPAINT_LIB REQUIRED libmypaint)
+  find_package(JPEG REQUIRED)
 
-    find_library(TURBOJPEG_LIB turbojpeg)
-    message("**************** turbojpeg lib:" ${TURBOJPEG_LIB})
+  # the libraries have .pc
+  find_package(PkgConfig)
 
-    if (WITH_CANON)
-        set(CANON_LIB ${SDKROOT}/canon/Library/x86_64/libEDSDK.so)
-        message("**************** canon lib:" ${CANON_LIB})
-    endif()
+  # This is not required for Tahoma2D itself, but libtiff will pick it up if
+  # present and libimage won't be aware causing linker to fail
+  pkg_check_modules(LZMA liblzma)
+  set(TIFF_LIB ${TIFF_LIBRARY} ${LZMA_LIBRARIES})
 
-    if(WITH_GPHOTO2)
-        find_library(GPHOTO2_LIB gphoto2)
-        message("**************** gphoto2 lib:" ${GPHOTO2_LIB})
-        find_library(GPHOTO2_PORT_LIB gphoto2_port)
-        message("**************** gphoto2_port lib:" ${GPHOTO2_PORT_LIB})
-    endif()
-	
-    find_library(DEFLATE_LIB deflate)
+  if(GLEW-NOTFOUND)
+    pkg_check_modules(GLEW REQUIRED glew)
+  endif()
+  set(GLEW_LIB ${GLEW_LIBRARIES})
+
+  pkg_check_modules(LZ4_LIB REQUIRED liblz4)
+
+  message("**************** lz4 lib:" ${LZ4_LIB_INCLUDE_DIRS})
+  find_path(LZ4_STATIC lz4frame_static.h PATH ${LZ4_LIB_INCLUDE_DIRS})
+  if(LZ4_STATIC-FOUND)
+    add_definitions(-DLZ4_STATIC)
+  endif()
+
+  # TODO: check for them properly in some sane order with pkg-config
+  find_library(OPENBLAS_LIB NAMES cblas gslcblas openblas blas)
+  message("OpenBLAS:" ${OPENBLAS_LIB})
+
+  set(JPEG_LIB ${JPEG_LIBRARY})
+  set(LZ4_LIB ${LZ4_LIB_LDFLAGS})
+
+  find_package(LZO REQUIRED)
+  message("LZO:" ${LZO_INCLUDE_DIR})
+
+  if(BUILD_TARGET_BSD OR HAIKU)
+    find_library(EXECINFO_LIBRARY execinfo)
+  endif()
+  find_library(PTHREAD_LIBRARY pthread)
+
+  if(NOT BUILD_TARGET_WIN)
+    pkg_check_modules(FREETYPE REQUIRED freetype2)
+  endif()
+  # Can be 'libmypaint' or 'libmypaint-1.x'
+  pkg_search_module(MYPAINT_LIB REQUIRED libmypaint)
+
+  find_library(TURBOJPEG_LIB turbojpeg)
+  message("**************** turbojpeg lib:" ${TURBOJPEG_LIB})
+
+  if (WITH_CANON)
+    set(CANON_LIB ${SDKROOT}/canon/Library/x86_64/libEDSDK.so)
+    message("**************** canon lib:" ${CANON_LIB})
+  endif()
+
+  if(WITH_GPHOTO2)
+    find_library(GPHOTO2_LIB gphoto2)
+    message("**************** gphoto2 lib:" ${GPHOTO2_LIB})
+    find_library(GPHOTO2_PORT_LIB gphoto2_port)
+    message("**************** gphoto2_port lib:" ${GPHOTO2_PORT_LIB})
+  endif()
+
+  find_library(DEFLATE_LIB deflate)
 endif()
 
 
 include(TestBigEndian)
 test_big_endian(_SYSTEM_BIG_ENDIAN)
 if(_SYSTEM_BIG_ENDIAN)
-    add_definitions(-DTNZ_LITTLE_ENDIAN=0)
+  add_definitions(-DTNZ_LITTLE_ENDIAN=0)
 else()
-    add_definitions(-DTNZ_LITTLE_ENDIAN=1)
+  add_definitions(-DTNZ_LITTLE_ENDIAN=1)
 endif()
 unset(_SYSTEM_BIG_ENDIAN)
 
@@ -580,13 +581,13 @@ set(C_WARNINGS)
 set(CXX_WARNINGS)
 
 if(CMAKE_COMPILER_IS_GNUCC)
-    ADD_CHECK_C_COMPILER_FLAG(C_WARNINGS C_WARN_WRITE_STRINGS -Wwrite-strings)
-    ADD_CHECK_C_COMPILER_FLAG(C_WARNINGS C_WARN_UNDEF -Wundef)
-    ADD_CHECK_C_COMPILER_FLAG(C_WARNINGS C_WARN_MISSING_DECLARATIONS -Wmissing-declarations)
+  ADD_CHECK_C_COMPILER_FLAG(C_WARNINGS C_WARN_WRITE_STRINGS -Wwrite-strings)
+  ADD_CHECK_C_COMPILER_FLAG(C_WARNINGS C_WARN_UNDEF -Wundef)
+  ADD_CHECK_C_COMPILER_FLAG(C_WARNINGS C_WARN_MISSING_DECLARATIONS -Wmissing-declarations)
 
-    ADD_CHECK_CXX_COMPILER_FLAG(CXX_WARNINGS CXX_WARN_WRITE_STRINGS -Wwrite-strings)
-    ADD_CHECK_CXX_COMPILER_FLAG(CXX_WARNINGS CXX_WARN_UNDEF -Wundef)
-    ADD_CHECK_CXX_COMPILER_FLAG(CXX_WARNINGS CXX_WARN_MISSING_DECLARATIONS -Wmissing-declarations)
+  ADD_CHECK_CXX_COMPILER_FLAG(CXX_WARNINGS CXX_WARN_WRITE_STRINGS -Wwrite-strings)
+  ADD_CHECK_CXX_COMPILER_FLAG(CXX_WARNINGS CXX_WARN_UNDEF -Wundef)
+  ADD_CHECK_CXX_COMPILER_FLAG(CXX_WARNINGS CXX_WARN_MISSING_DECLARATIONS -Wmissing-declarations)
 endif()
 
 
@@ -598,7 +599,7 @@ include_directories(
 )
 
 if(BUILD_ENV_MSVC OR BUILD_ENV_APPLE)
-    find_path(
+  find_path(
         BOOST_ROOT
             include/boost
             boost
@@ -614,9 +615,9 @@ if(BUILD_ENV_MSVC OR BUILD_ENV_APPLE)
             boost155/1.55.0_1/
             boost/boost_1_55_0/
     )
-    find_package(Boost 1.55 REQUIRED)
+  find_package(Boost 1.55 REQUIRED)
 else()
-    find_package(Boost)
+  find_package(Boost)
 endif()
 
 include_directories(
@@ -630,59 +631,59 @@ include_directories(
 )
 
 if(BUILD_TARGET_WIN AND PLATFORM EQUAL 64)
-    add_definitions(-Dx64)
+  add_definitions(-Dx64)
 endif()
 
 if(BUILD_ENV_MSVC)
-    # place Toonz.exe and dlls in the same directory
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-    # use secure functions by defaualt
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1")
+  # place Toonz.exe and dlls in the same directory
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+  # use secure functions by defaualt
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1")
 elseif(BUILD_ENV_APPLE)
-    # pass
+  # pass
 elseif(BUILD_ENV_UNIXLIKE)
-    set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+  set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
-    # Mirror relative bin/lib location for installation
-    # so the generated shell script works in both cases.
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/tahoma2d)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/tahoma2d)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  # Mirror relative bin/lib location for installation
+  # so the generated shell script works in both cases.
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/tahoma2d)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/tahoma2d)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-        set(CMAKE_INSTALL_PREFIX "/opt/tahoma2d" CACHE PATH "Tahoma2D install prefix" FORCE)
-    endif()
+  if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "/opt/tahoma2d" CACHE PATH "Tahoma2D install prefix" FORCE)
+  endif()
 endif()
 
 if(BUILD_ENV_MSVC AND MSVC_VERSION EQUAL 1800)
-    # Visual C++ 2013 cannot handle UTF-8 without BOM
-    # Non-ascii characters in comments would not be a problem
-    add_compile_options("/wd4819")
+  # Visual C++ 2013 cannot handle UTF-8 without BOM
+  # Non-ascii characters in comments would not be a problem
+  add_compile_options("/wd4819")
 endif()
 
 if(WITH_TRANSLATION)
-    # generate Qt translations and messages
-    set(LANGUAGES japanese italian french spanish chinese german russian korean czech brazilian-portuguese)
+  # generate Qt translations and messages
+  set(LANGUAGES japanese italian french spanish chinese german russian korean czech brazilian-portuguese)
 
-    function(add_translation module)
-        set(translation)
-        foreach(lang ${LANGUAGES})
-            set(name "${CMAKE_SOURCE_DIR}/translations/${lang}/${module}.ts")
-            list(APPEND translation ${name})
-            set_source_files_properties(${name} PROPERTIES
+  function(add_translation module)
+    set(translation)
+    foreach(lang ${LANGUAGES})
+      set(name "${CMAKE_SOURCE_DIR}/translations/${lang}/${module}.ts")
+      list(APPEND translation ${name})
+      set_source_files_properties(${name} PROPERTIES
                 OUTPUT_LOCATION "${CMAKE_BINARY_DIR}/loc/${lang}"
             )
-        endforeach()
+    endforeach()
 
-        qt5_create_translation(message ${translation} ${ARGN})
+    qt5_create_translation(message ${translation} ${ARGN})
 
-        add_custom_target("translation_${module}" DEPENDS ${message})
-        set_target_properties("translation_${module}" PROPERTIES
+    add_custom_target("translation_${module}" DEPENDS ${message})
+    set_target_properties("translation_${module}" PROPERTIES
             EXCLUDE_FROM_DEFAULT_BUILD TRUE
         )
-    endfunction()
+  endfunction()
 endif()
 
 set(CMAKE_C_FLAGS "${C_WARNINGS} ${CMAKE_C_FLAGS}")
@@ -709,19 +710,19 @@ add_subdirectory(tconverter)
 add_subdirectory(toonzfarm)
 
 if(BUILD_ENV_APPLE)
-    add_subdirectory(mousedragfilter)
+  add_subdirectory(mousedragfilter)
 endif()
 
 if(BUILD_ENV_APPLE)
-    add_custom_command(TARGET executable
+  add_custom_command(TARGET executable
         POST_BUILD COMMAND
         ${CMAKE_INSTALL_NAME_TOOL} -add_rpath ${CMAKE_INSTALL_RPATH}
         $<TARGET_FILE:executable>
     )
-    # add capability for retina displays
-    set_target_properties(Tahoma2D PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/../cmake/BundleInfo.plist.in)
+  # add capability for retina displays
+  set_target_properties(Tahoma2D PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/../cmake/BundleInfo.plist.in)
 endif()
 
 if(BUILD_ENV_UNIXLIKE AND NOT BUILD_TARGET_WIN)
-    add_subdirectory(xdg-data)
+  add_subdirectory(xdg-data)
 endif()
